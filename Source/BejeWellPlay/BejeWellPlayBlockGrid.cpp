@@ -138,5 +138,14 @@ bool ABejeWellPlayBlockGrid::Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirectio
 	return true;
 }
 
+int ABejeWellPlayBlockGrid::GetBlockRowIndex(ABejeWellPlayBlock* _block)
+{
+	return (_block->GetActorLocation() - GetActorLocation()).X / m_gridSize * m_blockByRow + m_blockByRow * 0.5;
+}
+
+int ABejeWellPlayBlockGrid::GetBlockColumnIndex(ABejeWellPlayBlock* _block)
+{
+	return (_block->GetActorLocation() - GetActorLocation()).Y / m_gridSize * m_blockByRow + m_blockByColumn * 0.5;
+}
 
 #undef LOCTEXT_NAMESPACE

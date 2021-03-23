@@ -92,10 +92,18 @@ ABejeWellPlayBlock::ABejeWellPlayBlock()
 
 void ABejeWellPlayBlock::Init(int _rowId, int _columnId, int _blockType)
 {
-	m_rowIndex = _rowId;
-	m_columnIndex = _columnId;
 	m_blockType = _blockType;
 	m_staticMeshComponent->SetMaterial(0, GetBaseMaterial());
+}
+
+int ABejeWellPlayBlock::GetRowIndex()
+{
+	return m_owningGrid->GetBlockRowIndex(this);
+}
+
+int ABejeWellPlayBlock::GetColumnIndex()
+{
+	return m_owningGrid->GetBlockColumnIndex(this);
 }
 
 void ABejeWellPlayBlock::Select()
@@ -114,26 +122,22 @@ void ABejeWellPlayBlock::Deselect()
 
 void ABejeWellPlayBlock::MoveLeft()
 {
-	m_columnIndex -= 1;
-	m_staticMeshComponent->SetRelativeLocation(FVector(0.0f, -2.0f * GetGrid()->GetGridSize() / GetGrid()->GetBlockByRow(), 0.0f));
+	SetActorLocation(GetActorLocation() - FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetBlockByRow(), 0.0f));
 }
 
 void ABejeWellPlayBlock::MoveRight()
 {
-	m_columnIndex += 1;
-	m_staticMeshComponent->SetRelativeLocation(FVector(0.0f, 2.0f * GetGrid()->GetGridSize() / GetGrid()->GetBlockByRow(), 0.0f));
+	SetActorLocation(GetActorLocation() + FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetBlockByRow(), 0.0f));
 }
 
 void ABejeWellPlayBlock::MoveTop()
 {
-	m_rowIndex += 1;
-	m_staticMeshComponent->SetRelativeLocation(FVector(2.0f * GetGrid()->GetGridSize() / GetGrid()->GetBlockByColumn(), 0.0f, 0.0f));
+	SetActorLocation(GetActorLocation() + FVector(GetGrid()->GetGridSize() / GetGrid()->GetBlockByColumn(), 0.0f, 0.0f));
 }
 
 void ABejeWellPlayBlock::MoveBottom()
 {
-	m_rowIndex -= 1;
-	m_staticMeshComponent->SetRelativeLocation(FVector(-2.0f * GetGrid()->GetGridSize() / GetGrid()->GetBlockByColumn(), 0.0f, 0.0f));
+	SetActorLocation(GetActorLocation() - FVector(GetGrid()->GetGridSize() / GetGrid()->GetBlockByColumn(), 0.0f, 0.0f));
 }
 
 /*void ABejeWellPlayBlock::BlockClicked(UPrimitiveComponent* _clickedComp, FKey _buttonClicked)

@@ -47,6 +47,9 @@ public:
 
 	// Return true if the swap succeeded
 	bool Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirections _direction);
+
+	int GetBlockRowIndex(ABejeWellPlayBlock* _block);
+	int GetBlockColumnIndex(ABejeWellPlayBlock* _block);
 protected:
 	virtual void BeginPlay() override;
 

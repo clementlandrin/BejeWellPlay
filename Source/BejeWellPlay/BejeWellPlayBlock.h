@@ -34,8 +34,8 @@ public:
 
 	void Init(int _rowId, int _columnId, int _blockType);
 
-	int GetRowIndex() { return m_rowIndex; }
-	int GetColumnIndex() { return m_columnIndex; }
+	int GetRowIndex(); 
+	int GetColumnIndex();
 
 	ABejeWellPlayBlockGrid* GetGrid() { return m_owningGrid; }
 
@@ -73,9 +73,6 @@ private:
 
 	/** Grid that owns us */
 	ABejeWellPlayBlockGrid* m_owningGrid;
-
-	int m_rowIndex;
-	int m_columnIndex;
 
 	bool m_selected;
 
