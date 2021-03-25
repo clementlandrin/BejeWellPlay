@@ -66,8 +66,6 @@ ABejeWellPlayBlock::ABejeWellPlayBlock()
 	m_staticMeshComponent->SetRelativeScale3D(FVector(1.f,1.f,0.25f));
 	m_staticMeshComponent->SetRelativeLocation(FVector(0.f,0.f,25.f));
 	m_staticMeshComponent->SetupAttachment(m_dummyRoot);
-	/*m_staticMeshComponent->OnClicked.AddDynamic(this, &ABejeWellPlayBlock::BlockClicked);
-	m_staticMeshComponent->OnInputTouchBegin.AddDynamic(this, &ABejeWellPlayBlock::OnFingerPressedBlock);*/
 
 	Gem1BaseMaterial = ConstructorStatics.Gem1BaseMaterial.Get();
 	Gem2BaseMaterial = ConstructorStatics.Gem2BaseMaterial.Get();
@@ -139,22 +137,6 @@ void ABejeWellPlayBlock::MoveBottom()
 {
 	SetActorLocation(GetActorLocation() - FVector(GetGrid()->GetGridSize() / GetGrid()->GetBlockByColumn(), 0.0f, 0.0f));
 }
-
-/*void ABejeWellPlayBlock::BlockClicked(UPrimitiveComponent* _clickedComp, FKey _buttonClicked)
-{
-	HandleClicked();
-}
-
-
-void ABejeWellPlayBlock::OnFingerPressedBlock(ETouchIndex::Type _fingerIndex, UPrimitiveComponent* _touchedComponent)
-{
-	HandleClicked();
-}
-
-void ABejeWellPlayBlock::HandleClicked()
-{
-
-}*/
 
 UMaterialInstance* ABejeWellPlayBlock::GetBaseMaterial()
 {

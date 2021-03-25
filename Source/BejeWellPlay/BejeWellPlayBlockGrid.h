@@ -50,10 +50,15 @@ public:
 
 	int GetBlockRowIndex(ABejeWellPlayBlock* _block);
 	int GetBlockColumnIndex(ABejeWellPlayBlock* _block);
+
+	void CheckGrid();
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	void CheckColumns(TArray<ABejeWellPlayBlock*>& _blocksToDelete);
+	void CheckRows(TArray<ABejeWellPlayBlock*>& _blocksToDelete);
+	void DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToDelete);
 
 	int m_blockByRow = 8;
 	int m_blockByColumn = 8;

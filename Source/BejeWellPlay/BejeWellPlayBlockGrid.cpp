@@ -68,6 +68,8 @@ void ABejeWellPlayBlockGrid::BeginPlay()
 		}
 	}
 
+	this->CheckGrid();
+
 	m_textRenderComponent->SetText(FText::Format(LOCTEXT("Debug text", "Debug: {0}"), FText::AsNumber(m_blockByRow * m_blockByColumn)));
 }
 
@@ -135,6 +137,9 @@ bool ABejeWellPlayBlockGrid::Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirectio
 		otherBlock->MoveLeft();
 		break;
 	}
+
+	this->CheckGrid();
+
 	return true;
 }
 
@@ -146,6 +151,87 @@ int ABejeWellPlayBlockGrid::GetBlockRowIndex(ABejeWellPlayBlock* _block)
 int ABejeWellPlayBlockGrid::GetBlockColumnIndex(ABejeWellPlayBlock* _block)
 {
 	return (_block->GetActorLocation() - GetActorLocation()).Y / m_gridSize * m_blockByRow + m_blockByColumn * 0.5;
+}
+
+void ABejeWellPlayBlockGrid::CheckGrid()
+{
+	TArray<ABejeWellPlayBlock*> blocksToDelete = TArray<ABejeWellPlayBlock*>();
+	CheckColumns(blocksToDelete);
+	CheckRows(blocksToDelete);
+	DeleteBlocks(blocksToDelete);
+}
+
+void ABejeWellPlayBlockGrid::CheckRows(TArray<ABejeWellPlayBlock*>& _blocksToDelete)
+{
+	UE_LOG(LogTemp, Error, TEXT("CheckGrid"));
+	for (int i = 0; i < m_blockByRow; i++)
+	{
+		int tempBlockType = m_blocks[i][0]->GetType();
+		int beginColumnIndex = 0;
+		for (int j = 1; j < m_blockByColumn; j++)
+		{
+			if (m_blocks[i][j]->GetType() == tempBlockType)
+			{
+				if (j - beginColumnIndex == 2)
+				{
+					_blocksToDelete.Push(m_blocks[i][beginColumnIndex]);
+					_blocksToDelete.Push(m_blocks[i][beginColumnIndex + 1]);
+					_blocksToDelete.Push(m_blocks[i][beginColumnIndex + 2]);
+				}
+				else if (j - beginColumnIndex > 2)
+				{
+					_blocksToDelete.Push(m_blocks[i][j]);
+				}
+			}
+			else
+			{
+				tempBlockType = m_blocks[i][j]->GetType();
+				beginColumnIndex = j;
+			}
+		}
+	}
+}
+
+void ABejeWellPlayBlockGrid::CheckColumns(TArray<ABejeWellPlayBlock*>& _blocksToDelete)
+{
+	UE_LOG(LogTemp, Error, TEXT("CheckGrid"));
+	for (int j = 0; j < m_blockByColumn; j++)
+	{
+		int tempBlockType = m_blocks[0][j]->GetType();
+		int beginRowIndex = 0;
+		for (int i = 1; i < m_blockByRow; i++)
+		{
+			if (m_blocks[i][j]->GetType() == tempBlockType)
+			{
+				if (i - beginRowIndex == 2)
+				{
+					_blocksToDelete.Push(m_blocks[beginRowIndex][j]);
+					_blocksToDelete.Push(m_blocks[beginRowIndex + 1][j]);
+					_blocksToDelete.Push(m_blocks[beginRowIndex + 2][j]);
+				}
+				else if (i - beginRowIndex > 2)
+				{
+					_blocksToDelete.Push(m_blocks[i][j]);
+				}
+			}
+			else
+			{
+				tempBlockType = m_blocks[i][j]->GetType();
+				beginRowIndex = i;
+			}
+		}
+	}
+}
+
+void ABejeWellPlayBlockGrid::DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToDelete)
+{
+	for (int i = 0; i < _blocksToDelete.Num(); i++)
+	{
+		if (_blocksToDelete[i])
+		{
+			_blocksToDelete[i]->Destroy();
+		}
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

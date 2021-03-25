@@ -17,16 +17,8 @@ class ABejeWellPlayBlock : public AActor
 public:
 	ABejeWellPlayBlock();
 
-	/** Returns DummyRoot subobject **/
 	USceneComponent* GetDummyRoot() const { return m_dummyRoot; }
-	/** Returns BlockMesh subobject **/
 	UStaticMeshComponent* GetStaticMeshComponent() const { return m_staticMeshComponent; }
-
-	/*void BlockClicked(UPrimitiveComponent* _clickedComp, FKey _buttonClicked);
-
-	void OnFingerPressedBlock(ETouchIndex::Type _fingerIndex, UPrimitiveComponent* _touchedComponent);
-
-	void HandleClicked();*/
 
 	void Highlight(bool _value);
 
@@ -36,6 +28,7 @@ public:
 
 	int GetRowIndex(); 
 	int GetColumnIndex();
+	int GetType() { return m_blockType; }
 
 	ABejeWellPlayBlockGrid* GetGrid() { return m_owningGrid; }
 
@@ -50,7 +43,6 @@ private:
 	/** Dummy root component */
 	USceneComponent* m_dummyRoot;
 
-	/** StaticMesh component for the clickable block */
 	UStaticMeshComponent* m_staticMeshComponent;
 
 	UMaterialInstance* Gem1BaseMaterial;
@@ -71,7 +63,6 @@ private:
 	UMaterialInstance* Gem4HighlightedMaterial;
 	UMaterialInstance* Gem5HighlightedMaterial;
 
-	/** Grid that owns us */
 	ABejeWellPlayBlockGrid* m_owningGrid;
 
 	bool m_selected;
