@@ -86,6 +86,19 @@ ABejeWellPlayBlock::ABejeWellPlayBlock()
 	Gem5HighlightedMaterial = ConstructorStatics.Gem5HighlightedMaterial.Get();
 
 	m_selected = false;
+
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void ABejeWellPlayBlock::Tick(float _deltaSeconds)
+{
+	Super::Tick(_deltaSeconds);
+
+	/*if (m_movingTimeRemaining > 0.0f)
+	{
+		SetActorLocation(GetActorLocation() + m_movingVector * _deltaSeconds);
+		m_movingTimeRemaining -= _deltaSeconds;
+	}*/
 }
 
 void ABejeWellPlayBlock::Init(int _rowId, int _columnId, int _blockType)
@@ -120,21 +133,29 @@ void ABejeWellPlayBlock::Deselect()
 
 void ABejeWellPlayBlock::MoveLeft()
 {
+	m_movingTimeRemaining = 1.0f;
+	m_movingVector = -FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetBlockByRow(), 0.0f);
 	SetActorLocation(GetActorLocation() - FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetBlockByRow(), 0.0f));
 }
 
 void ABejeWellPlayBlock::MoveRight()
 {
+	m_movingTimeRemaining = 1.0f;
+	m_movingVector = FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetBlockByRow(), 0.0f);
 	SetActorLocation(GetActorLocation() + FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetBlockByRow(), 0.0f));
 }
 
 void ABejeWellPlayBlock::MoveTop()
 {
+	m_movingTimeRemaining = 1.0f;
+	m_movingVector = FVector(GetGrid()->GetGridSize() / GetGrid()->GetBlockByColumn(), 0.0f, 0.0f);
 	SetActorLocation(GetActorLocation() + FVector(GetGrid()->GetGridSize() / GetGrid()->GetBlockByColumn(), 0.0f, 0.0f));
 }
 
 void ABejeWellPlayBlock::MoveBottom()
 {
+	m_movingTimeRemaining = 1.0f;
+	m_movingVector = -FVector(GetGrid()->GetGridSize() / GetGrid()->GetBlockByColumn(), 0.0f, 0.0f);
 	SetActorLocation(GetActorLocation() - FVector(GetGrid()->GetGridSize() / GetGrid()->GetBlockByColumn(), 0.0f, 0.0f));
 }
 

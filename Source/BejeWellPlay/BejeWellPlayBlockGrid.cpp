@@ -159,6 +159,7 @@ void ABejeWellPlayBlockGrid::CheckGrid()
 	CheckColumns(blocksToDelete);
 	CheckRows(blocksToDelete);
 	DeleteBlocks(blocksToDelete);
+	ApplyGravity();
 }
 
 void ABejeWellPlayBlockGrid::CheckRows(TArray<ABejeWellPlayBlock*>& _blocksToDelete)
@@ -166,11 +167,16 @@ void ABejeWellPlayBlockGrid::CheckRows(TArray<ABejeWellPlayBlock*>& _blocksToDel
 	UE_LOG(LogTemp, Error, TEXT("CheckGrid"));
 	for (int i = 0; i < m_blockByRow; i++)
 	{
-		int tempBlockType = m_blocks[i][0]->GetType();
+		int tempBlockType = -1;
 		int beginColumnIndex = 0;
-		for (int j = 1; j < m_blockByColumn; j++)
+		for (int j = 0; j < m_blockByColumn; j++)
 		{
-			if (m_blocks[i][j]->GetType() == tempBlockType)
+			if (m_blocks[i][j] == nullptr || m_blocks[i][j]->IsPendingKill())
+			{
+				beginColumnIndex = j + 1;
+				tempBlockType = -1;
+			}
+			else if (m_blocks[i][j]->GetType() == tempBlockType)
 			{
 				if (j - beginColumnIndex == 2)
 				{
@@ -197,11 +203,16 @@ void ABejeWellPlayBlockGrid::CheckColumns(TArray<ABejeWellPlayBlock*>& _blocksTo
 	UE_LOG(LogTemp, Error, TEXT("CheckGrid"));
 	for (int j = 0; j < m_blockByColumn; j++)
 	{
-		int tempBlockType = m_blocks[0][j]->GetType();
+		int tempBlockType = -1;
 		int beginRowIndex = 0;
-		for (int i = 1; i < m_blockByRow; i++)
+		for (int i = 0; i < m_blockByRow; i++)
 		{
-			if (m_blocks[i][j]->GetType() == tempBlockType)
+			if (m_blocks[i][j] == nullptr || m_blocks[i][j]->IsPendingKill())
+			{
+				beginRowIndex = i + 1;
+				tempBlockType = -1;
+			}
+			else if (m_blocks[i][j]->GetType() == tempBlockType)
 			{
 				if (i - beginRowIndex == 2)
 				{
@@ -234,4 +245,46 @@ void ABejeWellPlayBlockGrid::DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToD
 	}
 }
 
+void ABejeWellPlayBlockGrid::ApplyGravity()
+{
+	UE_LOG(LogTemp, Error, TEXT("ApplyGravity"));
+
+	// For each column
+	for (int columnIndex = 0; columnIndex < m_blockByRow; columnIndex++)
+	{
+		// Fill empty blocks starting from bottom
+		for (int rowIndex = 0; rowIndex < m_blockByColumn; rowIndex++)
+		{
+			if (m_blocks[rowIndex][columnIndex] == nullptr || m_blocks[rowIndex][columnIndex]->IsPendingKill())
+			{
+				UE_LOG(LogTemp, Error, TEXT("Empty block here %d %d"), rowIndex, columnIndex);
+				AttractBlockAbove(rowIndex, columnIndex);
+				FillColumnWithNewBlocks();
+			}
+		}
+	}
+}
+
+void ABejeWellPlayBlockGrid::AttractBlockAbove(int _rowIndex, int _columnIndex)
+{
+	for (int rowIndex = _rowIndex + 1; rowIndex < m_blockByColumn; rowIndex++)
+	{
+		if (m_blocks[rowIndex][_columnIndex] != nullptr && !m_blocks[rowIndex][_columnIndex]->IsPendingKill())
+		{
+			UE_LOG(LogTemp, Error, TEXT("Attracting block at %d %d"), rowIndex, _columnIndex);
+			for (int i = 0; i < rowIndex - _rowIndex; i++)
+			{
+				m_blocks[rowIndex][_columnIndex]->MoveBottom();
+			}
+			m_blocks[_rowIndex][_columnIndex] = m_blocks[rowIndex][_columnIndex];
+			m_blocks[rowIndex][_columnIndex] = nullptr;
+			return;
+		}
+	}
+}
+
+void ABejeWellPlayBlockGrid::FillColumnWithNewBlocks()
+{
+
+}
 #undef LOCTEXT_NAMESPACE

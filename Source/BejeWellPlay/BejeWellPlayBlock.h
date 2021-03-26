@@ -17,6 +17,8 @@ class ABejeWellPlayBlock : public AActor
 public:
 	ABejeWellPlayBlock();
 
+	virtual void Tick(float _deltaSeconds) override;
+
 	USceneComponent* GetDummyRoot() const { return m_dummyRoot; }
 	UStaticMeshComponent* GetStaticMeshComponent() const { return m_staticMeshComponent; }
 
@@ -68,6 +70,9 @@ private:
 	bool m_selected;
 
 	int m_blockType;
+
+	FVector m_movingVector;
+	float m_movingTimeRemaining;
 
 	UMaterialInstance* GetBaseMaterial();
 	UMaterialInstance* GetSelectedMaterial();

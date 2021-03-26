@@ -59,6 +59,9 @@ private:
 	void CheckColumns(TArray<ABejeWellPlayBlock*>& _blocksToDelete);
 	void CheckRows(TArray<ABejeWellPlayBlock*>& _blocksToDelete);
 	void DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToDelete);
+	void ApplyGravity();
+	void AttractBlockAbove(int _rowIndex, int _columnIndex);
+	void FillColumnWithNewBlocks();
 
 	int m_blockByRow = 8;
 	int m_blockByColumn = 8;
