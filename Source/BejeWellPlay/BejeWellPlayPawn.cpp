@@ -48,7 +48,7 @@ void ABejeWellPlayPawn::CalcCamera(float DeltaTime, struct FMinimalViewInfo& Out
 
 void ABejeWellPlayPawn::TriggerPress()
 {
-	if (m_focusedBlock)
+	if (m_focusedBlock && !m_focusedBlock->GetGrid()->BlocksAreMoving())
 	{
 		m_focusedBlock->Select();
 		m_selectedBlock = m_focusedBlock;
@@ -59,12 +59,9 @@ void ABejeWellPlayPawn::TriggerRelease()
 {
 	if (m_selectedBlock && m_focusedBlock && m_focusedBlock != m_selectedBlock)
 	{
-		bool shouldDeselect = m_selectedBlock->GetGrid()->Swap(m_selectedBlock, m_neighborDirection);
-		if (shouldDeselect)
-		{
-			m_selectedBlock->Deselect();
-			m_selectedBlock = nullptr;
-		}
+		m_selectedBlock->GetGrid()->Swap(m_selectedBlock, m_neighborDirection);
+		m_selectedBlock->Deselect();
+		m_selectedBlock = nullptr;
 	}
 	else if(m_selectedBlock)
 	{

@@ -7,7 +7,8 @@
 #include "EnumHelper.h"
 #include "BejeWellPlayBlockGrid.generated.h"
 
-enum MoveDirections : int
+UENUM()
+enum class MoveDirections : uint8
 {
 	None,
 	Top,
@@ -38,35 +39,39 @@ public:
 	USceneComponent* GetDummyRoot() const { return m_dummyRoot; }
 	UTextRenderComponent* GetTextRenderComponent() const { return m_textRenderComponent; }
 
-	int GetBlockByRow() { return m_blockByRow; }
-	int GetBlockByColumn() { return m_blockByColumn; }
+	int GetNumberOfRows() { return m_numberOfRows; }
+	int GetNumberOfColumns() { return m_numberOfColumns; }
 
 	float GetGridSize() { return m_gridSize; }
 
 	ABejeWellPlayBlock* GetBlockAtIndices(int _rowIndex, int _columnIndex);
 
-	// Return true if the swap succeeded
-	bool Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirections _direction);
+	void Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirections _direction, bool _isReversedSwap = false);
 
 	int GetBlockRowIndex(ABejeWellPlayBlock* _block);
 	int GetBlockColumnIndex(ABejeWellPlayBlock* _block);
 
-	void CheckGrid();
+	bool BlocksAreMoving();// { return m_numberOfMovingBlocks > 0; };
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	UFUNCTION()
+	void EndSwap(ABejeWellPlayBlock* _blockToSwap, MoveDirections _direction, bool _isReversedSwap);
+	bool CheckGrid();
 	void CheckColumns(TArray<ABejeWellPlayBlock*>& _blocksToDelete);
 	void CheckRows(TArray<ABejeWellPlayBlock*>& _blocksToDelete);
-	void DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToDelete);
+	bool DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToDelete);
 	void ApplyGravity();
 	void AttractBlockAbove(int _rowIndex, int _columnIndex);
 	void FillColumnWithNewBlocks();
 
-	int m_blockByRow = 8;
-	int m_blockByColumn = 8;
+	int m_numberOfRows = 8;
+	int m_numberOfColumns = 8;
 
 	float m_gridSize = 1000.0f;
+
+	int m_numberOfMovingBlocks;
 
 	TArray<TArray<ABejeWellPlayBlock*>> m_blocks;
 };

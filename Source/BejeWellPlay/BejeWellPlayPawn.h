@@ -7,7 +7,7 @@
 #include "EnumHelper.h"
 #include "BejeWellPlayPawn.generated.h"
 
-enum MoveDirections;
+enum class MoveDirections : uint8;
 class ABejeWellPlayBlock;
 
 UCLASS(config=Game)

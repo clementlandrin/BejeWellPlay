@@ -41,6 +41,8 @@ public:
 	void MoveRight();
 	void MoveTop();
 	void MoveBottom();
+
+	bool IsMoving();
 private:
 	/** Dummy root component */
 	USceneComponent* m_dummyRoot;
