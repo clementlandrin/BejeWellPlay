@@ -51,11 +51,15 @@ public:
 	int GetBlockRowIndex(ABejeWellPlayBlock* _block);
 	int GetBlockColumnIndex(ABejeWellPlayBlock* _block);
 
-	bool BlocksAreMoving();// { return m_numberOfMovingBlocks > 0; };
+	bool BlocksAreMoving();
+
+	float GetSpeed() { return m_speed; };
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	void CreateNewBlock(int _rowIndex, int _columnIndex);
+
 	UFUNCTION()
 	void EndSwap(ABejeWellPlayBlock* _blockToSwap, MoveDirections _direction, bool _isReversedSwap);
 	bool CheckGrid();
@@ -64,13 +68,13 @@ private:
 	bool DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToDelete);
 	void ApplyGravity();
 	void AttractBlockAbove(int _rowIndex, int _columnIndex);
-	void FillColumnWithNewBlocks();
+	bool FillColumnWithNewBlocks();
 
 	int m_numberOfRows = 8;
 	int m_numberOfColumns = 8;
 
 	float m_gridSize = 1000.0f;
-
+	float m_speed = 4.0f;
 	int m_numberOfMovingBlocks;
 
 	TArray<TArray<ABejeWellPlayBlock*>> m_blocks;

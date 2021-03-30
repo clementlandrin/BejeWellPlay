@@ -48,10 +48,18 @@ void ABejeWellPlayPawn::CalcCamera(float DeltaTime, struct FMinimalViewInfo& Out
 
 void ABejeWellPlayPawn::TriggerPress()
 {
-	if (m_focusedBlock && !m_focusedBlock->GetGrid()->BlocksAreMoving())
+	if (m_focusedBlock)
 	{
-		m_focusedBlock->Select();
-		m_selectedBlock = m_focusedBlock;
+		if (!m_focusedBlock->GetGrid()->BlocksAreMoving())
+		{
+			m_focusedBlock->Select();
+			m_selectedBlock = m_focusedBlock;
+		}
+		else
+		{
+			m_selectedBlock = nullptr;
+			UE_LOG(LogTemp, Error, TEXT("Blocks are moving"));
+		}
 	}
 }
 
@@ -83,7 +91,7 @@ void ABejeWellPlayPawn::ClearBlockUnderMouse()
 void ABejeWellPlayPawn::SetFocusedBlock(ABejeWellPlayBlock* _newFocusedBlock)
 {
 	m_focusedBlock = _newFocusedBlock;
-	m_focusedBlock->GetGrid()->GetTextRenderComponent()->SetText(FText::Format(LOCTEXT("Debug text", "Debug: {0} {1}"), FText::AsNumber(_newFocusedBlock->GetRowIndex()), FText::AsNumber(_newFocusedBlock->GetColumnIndex())));
+	m_focusedBlock->GetGrid()->GetTextRenderComponent()->SetText(FText::Format(LOCTEXT("Debug text", "Score: {0}"), FText::AsNumber(m_score)));
 }
 
 void ABejeWellPlayPawn::TraceForBlock(const FVector& _start, const FVector& _end)

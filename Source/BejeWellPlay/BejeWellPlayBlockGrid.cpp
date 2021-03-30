@@ -5,6 +5,8 @@
 #include "BejeWellPlayBlock.h"
 #include "Engine/World.h"
 #include "Math/RandomStream.h"
+#include "Kismet/GameplayStatics.h"
+#include "BejeWellPlayPawn.h"
 
 #define LOCTEXT_NAMESPACE "PuzzleBlockGrid"
 
@@ -27,52 +29,56 @@ ABejeWellPlayBlockGrid::ABejeWellPlayBlockGrid()
 	m_numberOfMovingBlocks = 0;
 }
 
+void ABejeWellPlayBlockGrid::CreateNewBlock(int _rowIndex, int _columnIndex)
+{
+	float blockWidth = m_gridSize / m_numberOfColumns;
+	float blockHeight = m_gridSize / m_numberOfRows;
+
+	// offset grows with index, displaced of m_gridSize * 0.5f to center on zero and take the block size into account
+	const float xOffset = _rowIndex * m_gridSize / m_numberOfColumns - m_gridSize * 0.5f + blockWidth * 0.5f;
+	const float yOffset = _columnIndex * m_gridSize / m_numberOfRows - m_gridSize * 0.5f + blockHeight * 0.5f;
+
+	// Make position vector, offset from Grid location
+	const FVector spawningOffset = FVector(m_gridSize, 0.0f, 0.0f);
+	const FVector blockLocation = spawningOffset + FVector(xOffset, yOffset, 0.f) + GetActorLocation();
+
+	// Spawn a block
+	ABejeWellPlayBlock* newBlock = GetWorld()->SpawnActor<ABejeWellPlayBlock>(blockLocation, FRotator(0, 0, 0));
+
+	// Divide the actor scale by the bouding volume size so it fits any mesh, regardless its dimensions.
+	FVector location = FVector();
+	FVector size = FVector();;
+	newBlock->GetActorBounds(false, location, size, false);
+	newBlock->SetActorScale3D(FVector(blockWidth / size.X * 0.5f, blockHeight / size.Y * 0.5f, 0.1f));
+
+	// Tell the block about its owner
+	if (newBlock)
+	{
+		int random = FMath::RandRange(0, 4);
+		newBlock->SetOwningGrid(this);
+		newBlock->Init(random);
+		m_blocks[_rowIndex][_columnIndex] = newBlock;
+		for (int i = 0; i < m_numberOfRows; i++)
+		{
+			newBlock->MoveBottom();
+		}
+	}
+}
+
 void ABejeWellPlayBlockGrid::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	float blockWidth = m_gridSize / (m_numberOfColumns);
-	float blockHeight = m_gridSize / (m_numberOfRows);
 
 	// Loop to spawn each block
 	for(int i = 0 ; i < m_numberOfRows; i++)
 	{
 		for (int j = 0; j < m_numberOfColumns; j++)
 		{
-			// offset grows with index, displaced of m_gridSize * 0.5f to center on zero and take the block size into account
-			const float xOffset = i * m_gridSize / m_numberOfColumns - m_gridSize * 0.5f + blockWidth * 0.5f;
-			const float yOffset = j * m_gridSize / m_numberOfRows - m_gridSize * 0.5f + blockHeight * 0.5f;
-
-			// Make position vector, offset from Grid location
-			const FVector blockLocation = FVector(xOffset, yOffset, 0.f) + GetActorLocation();
-
-			// Spawn a block
-			ABejeWellPlayBlock* newBlock = GetWorld()->SpawnActor<ABejeWellPlayBlock>(blockLocation, FRotator(0, 0, 0));
-
-			// Divide the actor scale by the bouding volume size so it fits any mesh, regardless its dimensions.
-			FVector location = FVector();
-			FVector size = FVector();;
-			newBlock->GetActorBounds(false, location, size, false);
-			newBlock->SetActorScale3D(FVector(blockWidth / size.X * 0.5f, blockHeight / size.Y * 0.5f, 0.1f));
-
-			// Tell the block about its owner
-			if (newBlock)
-			{
-				int random = FMath::RandRange(0, 4);
-				newBlock->SetOwningGrid(this);
-				newBlock->Init(i, j, random);
-				m_blocks[i][j] = newBlock;
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Error"));
-			}
+			CreateNewBlock(i, j);
 		}
 	}
 
 	this->CheckGrid();
-
-	m_textRenderComponent->SetText(FText::Format(LOCTEXT("Debug text", "Debug: {0}"), FText::AsNumber(m_numberOfRows * m_numberOfColumns)));
 }
 
 ABejeWellPlayBlock* ABejeWellPlayBlockGrid::GetBlockAtIndices(int _rowIndex, int _columnIndex)
@@ -109,7 +115,6 @@ void ABejeWellPlayBlockGrid::Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirectio
 	switch (_direction)
 	{
 	case MoveDirections::Top:
-		UE_LOG(LogTemp, Error, TEXT("Move top"));
 		if (_blockToSwap->GetRowIndex() >= m_numberOfRows - 1)
 		{
 			return;
@@ -121,7 +126,6 @@ void ABejeWellPlayBlockGrid::Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirectio
 		otherBlock->MoveBottom();
 		break;
 	case MoveDirections::Bottom:
-		UE_LOG(LogTemp, Error, TEXT("Move bottom"));
 		if (_blockToSwap->GetRowIndex() <= 0)
 		{
 			return;
@@ -133,7 +137,6 @@ void ABejeWellPlayBlockGrid::Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirectio
 		otherBlock->MoveTop();
 		break;
 	case MoveDirections::Left:
-		UE_LOG(LogTemp, Error, TEXT("Move left"));
 		if (_blockToSwap->GetColumnIndex() <= 0)
 		{
 			return;
@@ -145,7 +148,6 @@ void ABejeWellPlayBlockGrid::Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirectio
 		otherBlock->MoveRight();
 		break;
 	case MoveDirections::Right:
-		UE_LOG(LogTemp, Error, TEXT("Move right"));
 		if (_blockToSwap->GetColumnIndex() >= m_numberOfColumns - 1)
 		{
 			return;
@@ -164,7 +166,7 @@ void ABejeWellPlayBlockGrid::Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirectio
 	//Binding the function with specific values
 	TimerDel.BindUFunction(this, FName("EndSwap"), _blockToSwap, _direction, _isReversedSwap);
 	//Calling MyUsefulFunction after 5 seconds without looping
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 1.f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 1.0f / m_speed, false);
 }
 
 void ABejeWellPlayBlockGrid::EndSwap(ABejeWellPlayBlock* _blockToSwap, MoveDirections _direction, bool _isReversedSwap)
@@ -219,12 +221,15 @@ bool ABejeWellPlayBlockGrid::CheckGrid()
 		CheckColumns(blocksToDelete);
 		CheckRows(blocksToDelete);
 	}
+	if (FillColumnWithNewBlocks())
+	{
+		CheckGrid();
+	}
 	return deletedBlocks;
 }
 
 void ABejeWellPlayBlockGrid::CheckRows(TArray<ABejeWellPlayBlock*>& _blocksToDelete)
 {
-	UE_LOG(LogTemp, Error, TEXT("CheckGrid"));
 	for (int i = 0; i < m_numberOfRows; i++)
 	{
 		int tempBlockType = -1;
@@ -260,7 +265,6 @@ void ABejeWellPlayBlockGrid::CheckRows(TArray<ABejeWellPlayBlock*>& _blocksToDel
 
 void ABejeWellPlayBlockGrid::CheckColumns(TArray<ABejeWellPlayBlock*>& _blocksToDelete)
 {
-	UE_LOG(LogTemp, Error, TEXT("CheckGrid"));
 	for (int j = 0; j < m_numberOfColumns; j++)
 	{
 		int tempBlockType = -1;
@@ -305,6 +309,11 @@ bool ABejeWellPlayBlockGrid::DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToD
 	{
 		if (_blocksToDelete[i])
 		{
+			ABejeWellPlayPawn* Pawn = Cast<ABejeWellPlayPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
+			if (Pawn)
+			{
+				Pawn->IncreaseScore();
+			}
 			_blocksToDelete[i]->Destroy();
 		}
 	}
@@ -314,8 +323,6 @@ bool ABejeWellPlayBlockGrid::DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToD
 
 void ABejeWellPlayBlockGrid::ApplyGravity()
 {
-	UE_LOG(LogTemp, Error, TEXT("ApplyGravity"));
-
 	// For each column
 	for (int columnIndex = 0; columnIndex < m_numberOfColumns; columnIndex++)
 	{
@@ -325,9 +332,7 @@ void ABejeWellPlayBlockGrid::ApplyGravity()
 		{
 			if (m_blocks[rowIndex][columnIndex] == nullptr || m_blocks[rowIndex][columnIndex]->IsPendingKill())
 			{
-				UE_LOG(LogTemp, Error, TEXT("Empty block here %d %d"), rowIndex, columnIndex);
 				AttractBlockAbove(rowIndex, columnIndex);
-				FillColumnWithNewBlocks();
 			}
 		}
 	}
@@ -351,8 +356,37 @@ void ABejeWellPlayBlockGrid::AttractBlockAbove(int _rowIndex, int _columnIndex)
 	}
 }
 
-void ABejeWellPlayBlockGrid::FillColumnWithNewBlocks()
+bool ABejeWellPlayBlockGrid::FillColumnWithNewBlocks()
 {
+	bool madeABlockSpawn = false;
 
+	// For each column
+	for (int columnIndex = 0; columnIndex < m_numberOfColumns; columnIndex++)
+	{
+		// Count the missing blocks, starting from the bottom rows and stop at the first one with invalid block
+		int rowIndex = 0;
+		int rowOfInvalidBlock = -1;
+		while (rowIndex < m_numberOfRows && rowOfInvalidBlock < 0)
+		{
+			if (!m_blocks[rowIndex][columnIndex] || m_blocks[rowIndex][columnIndex]->IsPendingKill())
+			{
+				rowOfInvalidBlock = rowIndex;
+			}
+			rowIndex++;
+		}
+
+		// Only do stuff if a block is invalid on this column
+		if (rowOfInvalidBlock > 0)
+		{
+			// Now spawn the missing blocks
+			for (int i = rowOfInvalidBlock; i < m_numberOfRows; i++)
+			{
+				madeABlockSpawn = true;
+				CreateNewBlock(i, columnIndex);
+			}
+		}
+	}
+
+	return madeABlockSpawn;
 }
 #undef LOCTEXT_NAMESPACE

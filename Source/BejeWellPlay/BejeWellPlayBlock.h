@@ -26,7 +26,7 @@ public:
 
 	void SetOwningGrid(ABejeWellPlayBlockGrid* _grid) { m_owningGrid = _grid; }
 
-	void Init(int _rowId, int _columnId, int _blockType);
+	void Init(int _blockType);
 
 	int GetRowIndex(); 
 	int GetColumnIndex();

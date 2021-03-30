@@ -96,16 +96,13 @@ void ABejeWellPlayBlock::Tick(float _deltaSeconds)
 
 	if (m_movingTimeRemaining > 0.0f)
 	{
-		SetActorLocation(GetActorLocation() + m_movingVector * _deltaSeconds);
-		/*if (m_movingTimeRemaining > 0.0f && m_movingTimeRemaining - _deltaSeconds < 0.0f)
-		{
-			m_owningGrid->OneBlockStoppedMoving();
-		}*/
-		m_movingTimeRemaining = FMath::Max(m_movingTimeRemaining - _deltaSeconds, 0.0f);
+		float speed = m_owningGrid->GetSpeed();
+		SetActorLocation(GetActorLocation() + m_movingVector * _deltaSeconds * speed);
+		m_movingTimeRemaining = FMath::Max(m_movingTimeRemaining - _deltaSeconds * speed, 0.0f);
 	}
 }
 
-void ABejeWellPlayBlock::Init(int _rowId, int _columnId, int _blockType)
+void ABejeWellPlayBlock::Init(int _blockType)
 {
 	m_blockType = _blockType;
 	m_staticMeshComponent->SetMaterial(0, GetBaseMaterial());
@@ -125,14 +122,12 @@ void ABejeWellPlayBlock::Select()
 {
 	m_selected = true;
 	m_staticMeshComponent->SetMaterial(0, GetSelectedMaterial());
-	UE_LOG(LogTemp, Error, TEXT("Selected"));
 }
 
 void ABejeWellPlayBlock::Deselect()
 {
 	m_selected = false;
 	m_staticMeshComponent->SetMaterial(0, GetBaseMaterial());
-	UE_LOG(LogTemp, Error, TEXT("Deselected"));
 }
 
 bool ABejeWellPlayBlock::IsMoving()
@@ -142,34 +137,26 @@ bool ABejeWellPlayBlock::IsMoving()
 
 void ABejeWellPlayBlock::MoveLeft()
 {
-	//m_owningGrid->OneBlockStartedToMove();
 	m_movingTimeRemaining += 1.0f;
 	m_movingVector = -FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetNumberOfColumns(), 0.0f);
-	//SetActorLocation(GetActorLocation() - FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetNumberOfColumns(), 0.0f));
 }
 
 void ABejeWellPlayBlock::MoveRight()
 {
-	//m_owningGrid->OneBlockStartedToMove();
 	m_movingTimeRemaining += 1.0f;
 	m_movingVector = FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetNumberOfColumns(), 0.0f);
-	//SetActorLocation(GetActorLocation() + FVector(0.0f, GetGrid()->GetGridSize() / GetGrid()->GetNumberOfColumns(), 0.0f));
 }
 
 void ABejeWellPlayBlock::MoveTop()
 {
-	//m_owningGrid->OneBlockStartedToMove();
 	m_movingTimeRemaining += 1.0f;
 	m_movingVector = FVector(GetGrid()->GetGridSize() / GetGrid()->GetNumberOfRows(), 0.0f, 0.0f);
-	//SetActorLocation(GetActorLocation() + FVector(GetGrid()->GetGridSize() / GetGrid()->GetNumberOfRows(), 0.0f, 0.0f));
 }
 
 void ABejeWellPlayBlock::MoveBottom()
 {
-	//m_owningGrid->OneBlockStartedToMove();
 	m_movingTimeRemaining += 1.0f;
 	m_movingVector = -FVector(GetGrid()->GetGridSize() / GetGrid()->GetNumberOfRows(), 0.0f, 0.0f);
-	//SetActorLocation(GetActorLocation() - FVector(GetGrid()->GetGridSize() / GetGrid()->GetNumberOfRows(), 0.0f, 0.0f));
 }
 
 UMaterialInstance* ABejeWellPlayBlock::GetBaseMaterial()

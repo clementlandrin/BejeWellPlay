@@ -23,6 +23,7 @@ public:
 
 	virtual void CalcCamera(float _deltaTime, struct FMinimalViewInfo& _outResult) override;
 
+	void IncreaseScore() { m_score++; };
 protected:
 	void TriggerPress();
 	void TriggerRelease();
@@ -33,4 +34,6 @@ protected:
 	ABejeWellPlayBlock* m_focusedBlock;
 	ABejeWellPlayBlock* m_selectedBlock;
 	MoveDirections m_neighborDirection;
+
+	int m_score = 0;
 };
