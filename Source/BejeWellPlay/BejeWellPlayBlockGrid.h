@@ -68,13 +68,13 @@ private:
 	bool DeleteBlocks(TArray<ABejeWellPlayBlock*> _blocksToDelete);
 	void ApplyGravity();
 	void AttractBlockAbove(int _rowIndex, int _columnIndex);
-	bool FillColumnWithNewBlocks();
+	bool FillGrid();
 
 	int m_numberOfRows = 8;
 	int m_numberOfColumns = 8;
 
 	float m_gridSize = 1000.0f;
-	float m_speed = 4.0f;
+	float m_speed = 6.0f;
 	int m_numberOfMovingBlocks;
 
 	TArray<TArray<ABejeWellPlayBlock*>> m_blocks;

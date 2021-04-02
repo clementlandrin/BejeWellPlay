@@ -163,9 +163,7 @@ void ABejeWellPlayBlockGrid::Swap(ABejeWellPlayBlock* _blockToSwap, MoveDirectio
 	FTimerDelegate TimerDel;
 	FTimerHandle TimerHandle;
 
-	//Binding the function with specific values
 	TimerDel.BindUFunction(this, FName("EndSwap"), _blockToSwap, _direction, _isReversedSwap);
-	//Calling MyUsefulFunction after 5 seconds without looping
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, 1.0f / m_speed, false);
 }
 
@@ -221,7 +219,7 @@ bool ABejeWellPlayBlockGrid::CheckGrid()
 		CheckColumns(blocksToDelete);
 		CheckRows(blocksToDelete);
 	}
-	if (FillColumnWithNewBlocks())
+	if (FillGrid())
 	{
 		CheckGrid();
 	}
@@ -344,7 +342,6 @@ void ABejeWellPlayBlockGrid::AttractBlockAbove(int _rowIndex, int _columnIndex)
 	{
 		if (m_blocks[rowIndex][_columnIndex] != nullptr && !m_blocks[rowIndex][_columnIndex]->IsPendingKill())
 		{
-			UE_LOG(LogTemp, Error, TEXT("Attracting block at %d %d"), rowIndex, _columnIndex);
 			for (int i = 0; i < rowIndex - _rowIndex; i++)
 			{
 				m_blocks[rowIndex][_columnIndex]->MoveBottom();
@@ -356,14 +353,13 @@ void ABejeWellPlayBlockGrid::AttractBlockAbove(int _rowIndex, int _columnIndex)
 	}
 }
 
-bool ABejeWellPlayBlockGrid::FillColumnWithNewBlocks()
+bool ABejeWellPlayBlockGrid::FillGrid()
 {
 	bool madeABlockSpawn = false;
 
 	// For each column
 	for (int columnIndex = 0; columnIndex < m_numberOfColumns; columnIndex++)
 	{
-		// Count the missing blocks, starting from the bottom rows and stop at the first one with invalid block
 		int rowIndex = 0;
 		int rowOfInvalidBlock = -1;
 		while (rowIndex < m_numberOfRows && rowOfInvalidBlock < 0)
@@ -375,10 +371,8 @@ bool ABejeWellPlayBlockGrid::FillColumnWithNewBlocks()
 			rowIndex++;
 		}
 
-		// Only do stuff if a block is invalid on this column
 		if (rowOfInvalidBlock > 0)
 		{
-			// Now spawn the missing blocks
 			for (int i = rowOfInvalidBlock; i < m_numberOfRows; i++)
 			{
 				madeABlockSpawn = true;
