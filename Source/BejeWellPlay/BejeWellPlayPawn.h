@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "EnumHelper.h"
 #include "BejeWellPlayPawn.generated.h"
 
 enum class MoveDirections : uint8;

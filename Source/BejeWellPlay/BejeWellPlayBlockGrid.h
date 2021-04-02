@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "EnumHelper.h"
 #include "BejeWellPlayBlockGrid.generated.h"
 
 UENUM()
